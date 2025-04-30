@@ -22,29 +22,30 @@ const returnUserToken = (data: AuthResponse): { user: User, token: string } => {
 
 
 
-export const AuthLogin = async( email: string, password: string ) => {
+export const authLogin = async (email: string, password: string) => {
 
     email = email.toLowerCase().trim();
 
     try {
-        const { data } = await productsApi.post<AuthResponse>( '/auth/login', { email, password } );
+        const { data } = await productsApi.post<AuthResponse>('/auth/login', { email, password });
 
-        return returnUserToken( data );
+        return returnUserToken(data);
 
     } catch (error) {
         console.log(error)
-        throw new Error( 'Error en la autenticación' );
+        // throw new Error( 'Error en la autenticación' );
+        return null;
     }
 
 };
 
 
-export const AuthCheckStatus = async( token: string ) => {
+export const authCheckStatus = async (token?: string) => {
     try {
-        const { data } = await productsApi.get<AuthResponse>( '/auth/check-status' );
+        const { data } = await productsApi.get<AuthResponse>('/auth/check-status');
 
-        return returnUserToken( data );
-        
+        return returnUserToken(data);
+
     } catch (error) {
         console.log(error)
         return null;
