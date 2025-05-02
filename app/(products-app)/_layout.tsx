@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
 import { View, ActivityIndicator } from 'react-native';
+import { Redirect, Stack } from 'expo-router';
 
 import { useAuthStore } from '@/presentation/auth/store/useAuthStore';
-import { Redirect, Stack } from 'expo-router';
 import { useThemeColor } from '@/presentation/theme/hooks/useThemeColor';
+import LogoutIconButton from '@/presentation/auth/components/LogoutIconButton';
 
 
 const CheckAuthenticationLayout = () => {
@@ -14,6 +15,8 @@ const CheckAuthenticationLayout = () => {
     useEffect(() => {
         checkStatus()
     }, [])
+
+
 
     if (status === 'checking') {
         return <View style={{
@@ -46,7 +49,8 @@ const CheckAuthenticationLayout = () => {
             <Stack.Screen name="(home)/index"
 
                 options={{
-                    title: 'Home',
+                    title: 'Productos',
+                    headerLeft: () => <LogoutIconButton />,
                 }}
             />
         </Stack>

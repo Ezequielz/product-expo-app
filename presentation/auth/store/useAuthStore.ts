@@ -1,5 +1,6 @@
-import { authCheckStatus, authLogin } from "@/core/auth/actions/auth-actions";
+import { authCheckStatus, authLogin, authRegister } from "@/core/auth/actions/auth-actions";
 import { User } from "@/core/auth/interface/user";
+import { SecureStorageAdapter } from "@/helpers/adapters/secure-storege-adapter";
 import { create } from "zustand";
 
 export type AuthStatus = 'authenticated' | 'unauthenticated' | 'checking';
@@ -9,11 +10,12 @@ export interface AuthState {
     token?: string;
     user?: User;
 
-
+    //Methods
+    register: (fullname: string, email: string, password: string) => Promise<boolean>;
     login: (email: string, password: string) => Promise<boolean>;
     checkStatus: () => Promise<void>;
     logout: () => Promise<void>;
-    changeStatus: (token?: string, user?: User) => boolean;
+    changeStatus: (token?: string, user?: User) => Promise<boolean>;
 };
 
 
@@ -27,18 +29,23 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
 
     //Methods
-    changeStatus: (token?: string, user?: User) => {
+    changeStatus: async (token?: string, user?: User) => {
 
         if (!token || !user) {
             set({ status: 'unauthenticated', token: undefined, user: undefined });
-            //TODO llamar logout
+            get().logout();
             return false;
         }
         set({ status: 'authenticated', token, user });
 
         // guardar token en el secure storage
+        await SecureStorageAdapter.setItem('token', token);
         return true;
 
+    },
+    register: async (fullName: string, email: string, password: string) => {
+        const resp = await authRegister(fullName, email, password);
+        return get().changeStatus(resp?.token, resp?.user);;
     },
     login: async (email: string, password: string) => {
         const resp = await authLogin(email, password);
@@ -51,7 +58,8 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
     },
     logout: async () => {
-        //TODO eliminar token del secure storage
+        // eliminar token del secure storage
+        await SecureStorageAdapter.deleteItem('token');
         set({ status: 'unauthenticated', token: undefined, user: undefined });
     },
 }))

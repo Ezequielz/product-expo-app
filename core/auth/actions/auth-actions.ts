@@ -38,6 +38,23 @@ export const authLogin = async (email: string, password: string) => {
     }
 
 };
+export const authRegister = async ( fullName: string, email: string, password: string) => {
+
+    email = email.toLowerCase().trim();
+    fullName = fullName.toLowerCase().trim();
+
+    try {
+        const { data } = await productsApi.post<AuthResponse>('/auth/register', { fullName, email, password });
+        // console.log({data})
+        return returnUserToken(data);
+
+    } catch (error) {
+        console.log(error)
+        // throw new Error( 'Error en la autenticación' );
+        return null;
+    }
+
+};
 
 
 export const authCheckStatus = async (token?: string) => {
