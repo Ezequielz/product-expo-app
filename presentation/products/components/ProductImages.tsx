@@ -11,7 +11,7 @@ const ProductImages = ({ images }: Props) => {
 
     if (images.length === 0) {
         return (
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }} >
+            <View style={{ flexDirection: 'row', flex:1, justifyContent: 'center', alignItems: 'center', marginTop: 20 }} >
                 <Image
                     source={require('../../../assets/images/no-product-image.png')}
                     style={{ width: 300, height: 300 }}
