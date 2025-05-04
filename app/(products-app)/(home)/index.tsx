@@ -1,18 +1,29 @@
-import { ThemedText } from '@/presentation/theme/components/ThemedText'
-import { useThemeColor } from '@/presentation/theme/hooks/useThemeColor'
-import { View } from 'react-native'
+
+import { ActivityIndicator, View } from 'react-native'
+import { useProducts } from '@/presentation/products/hooks/useProducts'
+import ProductList from '@/presentation/products/components/ProductList'
+
 
 
 const HomeScreen = () => {
 
-  const primary = useThemeColor({}, 'primary')
+  const { loadNextPage, productsQuery } = useProducts();
+
+  if (productsQuery.isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size={30} />
+      </View>
+    )
+  }
 
 
   return (
-    <View style={{  paddingTop: 100 , paddingHorizontal: 20 }}>
-      <ThemedText style={{ fontFamily: 'kanitRegular', color: primary}}>HomeScreen</ThemedText>
-      <ThemedText style={{ fontFamily: 'kanitBold' }}>HomeScreen</ThemedText>
-      <ThemedText style={{ fontFamily: 'kanitThin' }}>HomeScreen</ThemedText>
+    <View style={{ paddingHorizontal: 20 }}>
+      <ProductList
+        products={productsQuery.data?.pages.flatMap(page => page) ?? []}
+        loadNextPage={loadNextPage}
+      />
     </View>
   )
 }

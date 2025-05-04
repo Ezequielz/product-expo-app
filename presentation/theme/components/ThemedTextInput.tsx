@@ -1,13 +1,15 @@
 import { Ionicons } from '@expo/vector-icons'
-import { View, TextInputProps, StyleSheet, TextInput } from 'react-native'
+import { TextInputProps, StyleSheet, TextInput, StyleProp, ViewStyle } from 'react-native'
 import { useThemeColor } from '../hooks/useThemeColor';
 import { useRef, useState } from 'react';
+import { ThemedView } from './ThemedView';
 
 interface Props extends TextInputProps {
     icon?: keyof typeof Ionicons.glyphMap;
+    containerStyle?: StyleProp<ViewStyle>
 }
 
-const ThemedTextInput = ({ icon, ...rest }: Props) => {
+const ThemedTextInput = ({ icon, containerStyle, ...rest }: Props) => {
 
     const [isActive, setIsActive] = useState(false);
     const inputRef = useRef<TextInput>(null)
@@ -17,13 +19,13 @@ const ThemedTextInput = ({ icon, ...rest }: Props) => {
 
 
     return (
-        <View
-            style={{
-                ...styles.border,
-                borderColor: isActive ? primaryColor : '#ccc',
-                backgroundColor: 'white'
-            }}
-            onTouchStart={( ) => inputRef.current?.focus()}
+        <ThemedView
+            style={[
+                styles.border,
+                { borderColor: isActive ? primaryColor : '#ccc', backgroundColor: 'white' },
+                containerStyle, // <- ahora pasás style propio del View si querés
+            ]}
+            onTouchStart={() => inputRef.current?.focus()}
 
         >
             {icon && (
@@ -47,7 +49,7 @@ const ThemedTextInput = ({ icon, ...rest }: Props) => {
                 }}
                 {...rest}
             />
-        </View>
+        </ThemedView>
     )
 }
 
@@ -59,7 +61,7 @@ const styles = StyleSheet.create({
     border: {
         borderWidth: 1,
         borderRadius: 5,
-        padding: 5,
+        padding: 2,
         marginBottom: 10,
         flexDirection: 'row',
         alignItems: 'center',
