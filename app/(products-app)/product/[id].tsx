@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { ScrollView, KeyboardAvoidingView, Platform, View, ActivityIndicator } from 'react-native';
+import { ScrollView, KeyboardAvoidingView, Platform, View, ActivityIndicator, RefreshControl } from 'react-native';
 import { Redirect, router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { Formik } from 'formik';
 
@@ -12,13 +12,24 @@ import ThemedButtonGroup from '@/presentation/theme/components/ThemedButtonGroup
 import ThemedButton from '@/presentation/theme/components/ThemedButton';
 import MenuIconButton from '@/presentation/theme/components/MenuIconButton';
 import { type Size } from '@/core/products/interface/product.interface';
+import { useCameraStore } from '@/presentation/store/useCameraStore';
 
 
 const ProductScreen = () => {
 
+  const { selectedImages, clearImages } = useCameraStore();
+
   const { id } = useLocalSearchParams();
   const navigation = useNavigation();
   const { productQuery, productMutation } = useProduct(`${id}`);
+
+
+  useEffect(() => {
+    return () => {
+      clearImages()
+    }
+  }, [])
+  
 
   useEffect(() => {
     navigation.setOptions({
@@ -60,17 +71,33 @@ const ProductScreen = () => {
 
     <Formik
       initialValues={product}
-      onSubmit={(productLike) => productMutation.mutate(productLike)}
+      onSubmit={(productLike) => productMutation.mutate({
+        ...productLike,
+        images: [
+          ...productLike.images,
+          ...selectedImages
+        ]
+      })}
     >
       {
         ({ values, handleSubmit, handleChange, setFieldValue }) => (
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           >
-            <ScrollView>
+            <ScrollView
+              refreshControl={
+                <RefreshControl 
+                    refreshing={ productQuery.isFetching }
+                    onRefresh={ async() => {
+                      await productQuery.refetch()
+                    }} 
+                />
+              }
+            
+            >
               {/* product images */}
               <ProductImages
-                images={values.images}
+                images={[ ...product.images, ...selectedImages ]}
               />
 
               <ThemedView style={{ marginHorizontal: 20, marginTop: 20 }}>
